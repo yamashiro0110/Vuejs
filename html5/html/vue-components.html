@@ -27,9 +27,16 @@
     <!-- Add your site or application content here -->
     <div class="row"></div>
     <div id="vue-list-app" class="row">
-      <form class="col s12">
+      <form class="col s12" action="/html/vue-components.html" method="get">
         <div class="col s12 m4" v-for="(item, index) in items">
-          <preview-card :item="item" :index="index" :selected="index"></preview-card>
+          <preview-card
+            :item="item"
+            :index="item.displayOrder"
+            :selected="index"
+          ></preview-card>
+        </div>
+        <div class="col s12 m12">
+          <input class="btn" type="submit" value="submit" />
         </div>
       </form>
     </div>
@@ -53,11 +60,12 @@
           <span class="card-title">{{ item.title }}</span>
         </div>
         <div class="card-content">
-          <div>
+          <div class="row">
             <P>shop:</P>
             <p>{{ shop_name }}</p>
           </div>
-          <div>
+          <div class="row"></div>
+          <div class="row">
             <p>desc:</p>
             <p>{{ item.description }}</p>
           </div>
@@ -69,18 +77,23 @@
 
       <!-- input form -->
       <div class="input-field col s12">
-        <input v-bind:id="'title-' + index" type="text" class="validate" v-model="item.title" />
-        <label v-bind:for="'title-' + index">title {{ index }}</label>
+        <input :id="'num' + index" type="number" name="num" v-model="item.displayOrder" />
+        <label :for="'num' + index">number</label>
       </div>
 
       <div class="input-field col s12">
-        <textarea v-bind:id="'description-' + index" type="text" class="materialize-textarea" v-model="item.description"></textarea>
-        <label v-bind:for="'description-' + index">description {{ index }}</label>
+        <input :id="'title-' + index" type="text" class="validate" name="title" v-model="item.title" />
+        <label :for="'title-' + index">title {{ index }}</label>
       </div>
 
       <div class="input-field col s12">
-        <input v-bind:id="'image_url-' + index" type="text" class="validate" v-model="item.image_url" />
-        <label v-bind:for="'image_url-' + index">Image URL {{ index }}</label>
+        <textarea :id="'description-' + index" type="text" class="materialize-textarea" name="desc" v-model="item.description"></textarea>
+        <label :for="'description-' + index">description {{ index }}</label>
+      </div>
+
+      <div class="input-field col s12">
+        <input :id="'image_url-' + index" type="text" class="validate" name="image_url" v-model="item.image_url" />
+        <label :for="'image_url-' + index">Image URL {{ index }}</label>
       </div>
 
       <div class="input-field col s12">
@@ -173,11 +186,11 @@
       template: "#preview-card-template",
       props: [
         'item',
-        'index',
         'selected'
       ],
       data: function() {
         return {
+          index: 0,
           shop_name: "",
           shop_cashback_condition: "",
         };
@@ -190,6 +203,11 @@
           this.shop_name = shop.name;
           console.log("shopが選択されました", shop);
         }
+      },
+      watch: {
+        "item.displayOrder": function(newItem, oldItem) {
+          console.log('item.displayOrder', newItem, oldItem);
+        }
       }
     });
 
@@ -199,18 +217,21 @@
       data: {
         selected: 1,
         items: [{
+            displayOrder: 1,
             message: "",
             title: "monoka",
             description: "Re:EDIT",
             image_url: "https://cdn.monoka.jp/image/shop/2018/08/31/262/6Mmvt9DM1n/ReEDIT.jpg"
           },
           {
+            displayOrder: 2,
             message: "",
             title: "monoka",
             description: "CHICWISH",
             image_url: "https://cdn.monoka.jp/image/shop/2018/08/31/157/Y9O3cDHlYU/chicwish.png"
           },
           {
+            displayOrder: 3,
             message: "",
             title: "monoka",
             description: "titivate",
