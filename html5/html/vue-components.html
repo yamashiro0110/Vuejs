@@ -1,0 +1,226 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+  <div class="row">
+    <!--[if lte IE 9]>
+      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+    <![endif]-->
+
+    <!-- Add your site or application content here -->
+    <div class="row"></div>
+    <div id="vue-list-app" class="row">
+      <form class="col s12">
+        <div class="col s12 m4" v-for="(item, index) in items">
+          <preview-card :item="item" :index="index" :selected="index"></preview-card>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/vendor/modernizr-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>window.jQuery || document.write('<script src="js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+  <script src="/js/plugins.js"></script>
+
+  <!-- template/preview-card -->
+  <script type="text/x-template" id="preview-card-template">
+    <div>
+      <!-- preview card -->
+      <div class="card">
+        <div class="card-image">
+          <img class="materialboxed" width="100" :src="item.image_url" />
+          <span class="card-title">{{ item.title }}</span>
+        </div>
+        <div class="card-content">
+          <div>
+            <P>shop:</P>
+            <p>{{ shop_name }}</p>
+          </div>
+          <div>
+            <p>desc:</p>
+            <p>{{ item.description }}</p>
+          </div>
+        </div>
+        <div class="card-action">
+          <a href="#!"></a>
+        </div>
+      </div>
+
+      <!-- input form -->
+      <div class="input-field col s12">
+        <input v-bind:id="'title-' + index" type="text" class="validate" v-model="item.title" />
+        <label v-bind:for="'title-' + index">title {{ index }}</label>
+      </div>
+
+      <div class="input-field col s12">
+        <textarea v-bind:id="'description-' + index" type="text" class="materialize-textarea" v-model="item.description"></textarea>
+        <label v-bind:for="'description-' + index">description {{ index }}</label>
+      </div>
+
+      <div class="input-field col s12">
+        <input v-bind:id="'image_url-' + index" type="text" class="validate" v-model="item.image_url" />
+        <label v-bind:for="'image_url-' + index">Image URL {{ index }}</label>
+      </div>
+
+      <div class="input-field col s12">
+        <select2 :value="selected" v-on:changedShop="changeShopInfo"></select2>
+      </div>
+    </div>
+  </script>
+
+  <!-- template/select2 -->
+  <script type="text/x-template" id="select2-template">
+    <select class="select2"></select>
+  </script>
+
+  <script>
+    const select2Options = [
+      {
+        id: 1,
+        text: 'Re:EDIT',
+        name: 'Re:EDIT',
+        condition: '条件1'
+      },
+      {
+        id: 2,
+        text: 'CHICWISH',
+        name: 'CHICWISH',
+        condition: '条件2'
+      },
+      {
+        id: 3,
+        text: 'titivate',
+        name: 'titivate',
+        condition: '条件3'
+      }
+    ];
+
+    // select2 component
+    Vue.component('select2', {
+      template: "#select2-template",
+      props: [
+        'value'
+      ],
+      methods: {
+        findShopDataByShopId: function(shopId) {
+          var filterResult = select2Options.filter(function(data) {
+            if (Number.isNaN(shopId)) {
+              return false;
+            }
+
+            return data.id === Number.parseInt(shopId);
+          });
+
+          if (filterResult.length === 0) {
+            return {};
+          }
+
+          return filterResult[0];
+        }
+      },
+      mounted: function() {
+        var vm = this;
+
+        // $(this.$el.querySelector('.select2'))
+        $(this.$el)
+          .select2({
+            data: select2Options
+          })
+          .val(this.value)
+          .trigger('change')
+          .on('change', function() {
+            var selectedShop = vm.findShopDataByShopId(this.value);
+            vm.$emit('input', this.value);
+            vm.$emit('changedShop', selectedShop);
+            console.log('changed select2 value', selectedShop);
+          });
+      },
+      watch: {
+        value: function(value) {
+          $(this.$el).val(value).trigger('change');
+          this.$emit('changedShop', value);
+          console.log('changed select2 value', value);
+        }
+      },
+      destroyed: function() {
+        $(this.$el).off().select2('destroy');
+      }
+    })
+
+    // preview component
+    Vue.component("preview-card", {
+      template: "#preview-card-template",
+      props: [
+        'item',
+        'index',
+        'selected'
+      ],
+      data: function() {
+        return {
+          shop_name: "",
+          shop_cashback_condition: "",
+        };
+      },
+      methods: {
+        /**
+         * 表示するショップ名を変更する
+         */
+        changeShopInfo: function(shop) {
+          this.shop_name = shop.name;
+          console.log("shopが選択されました", shop);
+        }
+      }
+    });
+
+    // Vue App
+    var vueApp = new Vue({
+      el: "#vue-list-app",
+      data: {
+        selected: 1,
+        items: [{
+            message: "",
+            title: "monoka",
+            description: "Re:EDIT",
+            image_url: "https://cdn.monoka.jp/image/shop/2018/08/31/262/6Mmvt9DM1n/ReEDIT.jpg"
+          },
+          {
+            message: "",
+            title: "monoka",
+            description: "CHICWISH",
+            image_url: "https://cdn.monoka.jp/image/shop/2018/08/31/157/Y9O3cDHlYU/chicwish.png"
+          },
+          {
+            message: "",
+            title: "monoka",
+            description: "titivate",
+            image_url: "https://cdn.monoka.jp/image/shop/2018/08/31/39/AOz90FKWVU/titivate.jpg"
+          }
+        ]
+      }
+    });
+  </script>
+
+</body>
+
+</html>
