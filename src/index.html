@@ -43,13 +43,14 @@
     <div id="sample-vue-title" class="row">
       <p>Hello world! This is HTML5 Boilerplate.</p>
       <p>{{ msg }}</p>
+      <p>query: {{ query }}</p>
     </div>
     <!-- search form -->
     <div id="sample-vue-input" class="row">
       <div class="col s12">
         <input type="text" v-model="query">
-        <button class="btn" v-on:click="search">search:button</button>
-        <a class="btn" v-on:click="search">search:a</a>
+        <button class="btn" v-on:click="search_1">search_1</button>
+        <a class="btn" v-on:click="search_2">search_2</a>
       </div>
     </div>
     <!-- search result view -->
@@ -90,16 +91,31 @@
         ]
       },
       mutations: {
+        /**
+         * queryを更新する
+         */
+        updateQuery(state, payload) {
+          console.log("store:updateQuery", payload);
+          state.query = payload.query;
+        },
+        /**
+         * valuesを更新する
+         */
         updateValues(state, payload) {
-          console.log("store:update", payload);
+          console.log("store:updateValues", payload);
           state.values = payload.data;
         }
       },
       actions: {
+        /**
+         * payloadに指定されたURLの値を結果に表示する
+         *
+         * @param payload.url リクエストするURL
+         */
         search(context, payload) {
           console.log("store:search", payload);
 
-          axios.get('/values.json')
+          axios.get(payload.url)
             .then((res) => {
               console.log('store: get response', res.data);
               context.commit('updateValues', res.data);
@@ -115,20 +131,43 @@
     var title = new Vue({
       el: "#sample-vue-title",
       computed: {
-        msg: () => store.state.msg
+        msg: () => store.state.msg,
+        query: () => store.state.query
       }
     });
 
     var form = new Vue({
       el: "#sample-vue-input",
       data: {
+        // inputFormとbindしている値
         query: ""
       },
       methods: {
-        search: function () {
-          console.log(`start request, query:${this.query}`);
-          store.dispatch('search', { query: this.query });
-        }
+        /**
+         * storeのqueryを更新する
+         *
+         * @param query クエリの値
+         */
+        updateQuery: function (query) {
+          console.log(`updateQuery:start, query:${query}`);
+          store.commit('updateQuery', { query: query });
+        },
+        /**
+         * `/1.json`にリクエストする
+         */
+        search_1: function () {
+          console.log(`search_1:start request, query:${this.query}`);
+          this.updateQuery(this.query);
+          store.dispatch('search', { query: this.query, url: "/1.json" });
+        },
+        /**
+         * `/2.json`にリクエストする
+         */
+        search_2: function () {
+          console.log(`search_2:start request, query:${this.query}`);
+          this.updateQuery(this.query);
+          store.dispatch('search', { query: this.query, url: "/2.json" });
+        },
       }
     });
 
