@@ -1,0 +1,144 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo">Sample Vue</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <!-- <li><a href="sass.html">Sass</a></li> -->
+        <!-- <li><a href="badges.html">Components</a></li> -->
+        <!-- <li><a href="collapsible.html">JavaScript</a></li> -->
+      </ul>
+    </div>
+  </nav>
+
+  <div id="" class="container">
+    <!-- title -->
+    <div id="sample-vue-title" class="row">
+      <p>Hello world! This is HTML5 Boilerplate.</p>
+      <p>{{ msg }}</p>
+    </div>
+    <!-- search form -->
+    <div id="sample-vue-input" class="row">
+      <div class="col s12">
+        <input type="text" v-model="query">
+        <button class="btn" v-on:click="search">search:button</button>
+        <a class="btn" v-on:click="search">search:a</a>
+      </div>
+    </div>
+    <!-- search result view -->
+    <div id="sample-vue-data" class="row">
+      <div class="card" v-for="val in values">
+        <div class="card-content">
+          <span class="card-title">ID: {{val.id}}</span>
+          <p>Name: {{val.name}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="https://unpkg.com/vuex@3.5.1/dist/vuex.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="js/vendor/modernizr-3.11.2.min.js"></script>
+  <script src="js/plugins.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
+  <!-- <script>
+    window.ga = function () { ga.q.push(arguments) }; ga.q = []; ga.l = +new Date;
+    ga('create', 'UA-XXXXX-Y', 'auto'); ga('set', 'anonymizeIp', true); ga('set', 'transport', 'beacon'); ga('send', 'pageview')
+  </script> -->
+  <!-- <script src="https://www.google-analytics.com/analytics.js" async></script> -->
+  <script>
+    var store = new Vuex.Store({
+      state: {
+        msg: "Hello Vue!",
+        query: "",
+        values: [
+          { "id": "1", "name": "hoge" },
+          { "id": "2", "name": "fuga" },
+          { "id": "3", "name": "piyo" },
+        ]
+      },
+      mutations: {
+        updateValues(state, payload) {
+          console.log("store:update", payload);
+          state.values = payload.data;
+        }
+      },
+      actions: {
+        search(context, payload) {
+          console.log("store:search", payload);
+
+          axios.get('/values.json')
+            .then((res) => {
+              console.log('store: get response', res.data);
+              context.commit('updateValues', res.data);
+            }).catch((err) => {
+              console.error('error', err);
+            }).then(() => {
+              console.log('done')
+            });
+        }
+      }
+    });
+
+    var title = new Vue({
+      el: "#sample-vue-title",
+      computed: {
+        msg: () => store.state.msg
+      }
+    });
+
+    var form = new Vue({
+      el: "#sample-vue-input",
+      data: {
+        query: ""
+      },
+      methods: {
+        search: function () {
+          console.log(`start request, query:${this.query}`);
+          store.dispatch('search', { query: this.query });
+        }
+      }
+    });
+
+    var data = new Vue({
+      el: '#sample-vue-data',
+      computed: {
+        values: () => store.state.values
+      }
+    });
+  </script>
+</body>
+
+</html>

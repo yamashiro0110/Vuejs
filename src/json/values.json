@@ -1,0 +1,20 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "name": "hoge"
+    },
+    {
+      "id": "2",
+      "name": "fuga"
+    },
+    {
+      "id": "3",
+      "name": "piyo"
+    },
+    {
+      "id": "4",
+      "name": "hirataku"
+    }
+  ]
+}
